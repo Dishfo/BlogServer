@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cs.sicnu.fiveg.mapper.VisitTotalMapper">
+
+    <resultMap id="BaseResultMap" type="visitTotal">
+        <result column="visit_id" jdbcType="INTEGER" property="visitId"/>
+        <result column="visit_date" jdbcType="DATE" property="visitDate"/>
+        <result column="visit_count" jdbcType="INTEGER" property="visitCount"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="visitTotal">
+
+        insert into visit_total (
+            visit_id,
+            visit_date,
+            visit_count)
+        values (
+            #{visitId,jdbcType=INTEGER},
+            #{visitDate,jdbcType=DATE},
+            #{visitCount,jdbcType=INTEGER})
+    </insert>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select *
+        from visit_total
+    </select>
+
+
+    <select id="selectById" resultType="_int">
+        select visit_count
+        from visit_total
+        where visit_id = #{id}
+    </select>
+
+    <select id="selectByDate" resultMap="BaseResultMap">
+        select *
+        from visit_total
+        where TO_DAYS(visit_date) = TO_DAYS(#{date})
+    </select>
+
+    <select id="select" resultType="visitTotal">
+        select *
+        from visit_total
+        where visit_id = #{id}
+    </select>
+
+    <update id="updateByDate">
+        update visit_total
+        set visit_count =
+        ((SELECT selTmp.visit_count
+          FROM (select tmp.*
+                from visit_total tmp) AS selTmp
+          where TO_DAYS(visit_date) = TO_DAYS(#{date})) + 1)
+        where TO_DAYS(visit_date) = TO_DAYS(#{date})
+    </update>
+
+    <update id="updateById">
+        update visit_total
+        set visit_count =
+        ((SELECT selTmp.visit_count
+          FROM (select tmp.*
+                from visit_total tmp) AS selTmp
+          where selTmp.visit_id = #{id}) + 1)
+        where visit_id = #{id}
+    </update>
+
+</mapper>

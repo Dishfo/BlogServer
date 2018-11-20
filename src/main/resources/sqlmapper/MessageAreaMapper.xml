@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cs.sicnu.fiveg.mapper.MessageAreaMapper">
+
+    <resultMap id="BaseResultMap" type="messageArea">
+        <result column="message_id" jdbcType="INTEGER" property="messageId"/>
+        <result column="message_parent" jdbcType="INTEGER" property="messageParent"/>
+        <result column="message_belong" jdbcType="INTEGER" property="messageBelong"/>
+        <result column="message_date" jdbcType="TIMESTAMP" property="messageDate"/>
+        <result column="message_email" jdbcType="CHAR" property="messageEmail"/>
+        <result column="message_content" jdbcType="LONGVARCHAR" property="messageContent"/>
+
+        <association property="messageUser" columnPrefix="u_" javaType="userInfo">
+            <id property="userId" column="user_id"/>
+            <result property="userName" column="user_name"/>
+            <result property="userNickName" column="user_nick_name"/>
+        </association>
+    </resultMap>
+
+    <insert id="insert" parameterType="messageArea">
+        insert into message_area (
+            message_id,
+            message_parent,
+            message_belong,
+            message_date,
+            message_email,
+            message_user,
+            message_content)
+        values (#{messageId},
+                #{messageParent},
+                #{messageBelong},
+                #{messageDate},
+                #{messageEmail},
+                #{messageUser,javaType=userInfo,jdbcType=INTEGER,typeHandler=userIdHandler},
+                #{messageContent})
+    </insert>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+            message_id,
+            message_parent,
+            message_belong,
+            message_date,
+            message_email,
+            message_content,
+            u.user_id as u_user_id,
+            u.user_name as u_user_name,
+            u.user_nick_name as u_user_nick_name
+        from message_area m inner join user_info u
+        on m.message_user=u.user_id
+        where m.message_belong=#{belongid}
+    </select>
+
+    <select id="selectNew" resultMap="BaseResultMap">
+        select
+            message_id,
+            message_parent,
+            message_belong,
+            message_date,
+            message_email,
+            message_content,
+            u.user_id as u_user_id,
+            u.user_name as u_user_name,
+            u.user_nick_name as u_user_nick_name
+        from message_area m inner join user_info u
+                on m.message_user=u.user_id
+        order by message_date DESC
+        limit 1
+    </select>
+</mapper>

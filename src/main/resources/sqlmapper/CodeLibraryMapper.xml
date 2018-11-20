@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cs.sicnu.fiveg.mapper.CodeLibraryMapper">
+    <resultMap id="BaseResultMap" type="cs.sicnu.fiveg.pojo.CodeLibrary">
+        <result column="code_id" jdbcType="INTEGER" property="codeId"/>
+        <result column="code_title" jdbcType="CHAR" property="codeTitle"/>
+        <result column="code_date" jdbcType="TIMESTAMP" property="codeDate"/>
+        <result column="code_read" jdbcType="INTEGER" property="codeRead"/>
+        <result column="code_summary" jdbcType="CHAR" property="codeSummary"/>
+        <result column="code_label" jdbcType="CHAR" property="codeLabel"/>
+        <result column="code_delete" jdbcType="INTEGER" property="codeDelete"/>
+        <result column="code_category" jdbcType="INTEGER" property="codeCategory"/>
+        <result column="code_html_content" jdbcType="LONGVARCHAR" property="codeHtmlContent"/>
+        <result column="code_md_content" jdbcType="LONGVARCHAR" property="codeMdContent"/>
+
+        <association property="codeAuthor" javaType="userInfo">
+            <id property="userId" column="code_author"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="ExtendResultMap" type="codeLibrary" extends="BaseResultMap">
+        <association property="codeAuthor" javaType="userInfo" columnPrefix="u_">
+            <id property="userId" column="user_id"/>
+            <result property="userName" column="user_name"/>
+            <result property="userNickName" column="user_nick_name"/>
+        </association>
+    </resultMap>
+
+    <insert id="insert" parameterType="cs.sicnu.fiveg.pojo.CodeLibrary">
+        insert into code_library (
+            code_id,
+            code_title,
+            code_author,
+            code_date,
+            code_read,
+            code_summary,
+            code_label,
+            code_delete,
+            code_category,
+            code_html_content,
+            code_md_content)
+        values (#{codeId,jdbcType=INTEGER},
+            #{codeTitle,jdbcType=CHAR},
+            #{codeAuthor,jdbcType=INTEGER,typeHandler=userIdHandler},
+            #{codeDate,jdbcType=TIMESTAMP},
+            #{codeRead,jdbcType=INTEGER},
+            #{codeSummary,jdbcType=CHAR},
+            #{codeLabel,jdbcType=CHAR},
+            #{codeDelete,jdbcType=INTEGER},
+            #{codeCategory,jdbcType=INTEGER},
+            #{codeHtmlContent,jdbcType=LONGVARCHAR},
+            #{codeMdContent,jdbcType=LONGVARCHAR})
+    </insert>
+
+    <update id="updateReadById">
+        update code_library
+        set code_read = ((SELECT selTmp.code_read
+                          FROM
+                              (select tmp.*
+                               from code_library tmp) AS selTmp
+                          where code_id = #{id})
+                         + 1)
+        where code_id = #{id}
+    </update>
+
+    <select id="selectAll" resultMap="ExtendResultMap">
+        select
+            code_id,
+            code_title,
+            code_author,
+            code_date,
+            code_read,
+            code_summary,
+            code_label,
+            code_delete,
+            code_category,
+            code_html_content,
+            code_md_content,
+            u.user_id        as u_user_id,
+            u.user_name      as u_user_name,
+            u.user_nick_name as u_user_nick_name
+        from code_library c inner join user_info u
+                on c.code_author = u.user_id
+        where c.code_delete=0
+        order by code_id DESC
+    </select>
+
+    <select id="selectBlogCount" resultType="int" parameterType="codeLibrary">
+        select
+        count(code_id)
+        from code_library c inner join user_info u
+        on c.code_author = u.user_id
+        <where>
+            c.code_delete=0
+            <if test="codeTitle!=null ">
+                and code_title like CONCAT('%',#{codeTitle},'%')
+            </if>
+
+            <if test="codeCategory!=null ">
+                and code_category=#{codeCategory}
+            </if>
+        </where>
+    </select>
+
+
+    <update id="updateById">
+        update code_library
+        <set>
+            <if test="codeTitle!=null ">
+                code_title=#{codeTitle},
+            </if>
+            <if test="codeDate!=null ">
+                code_date=#{codeDate},
+            </if>
+            <if test="codeAuthor!=null and codeAuthor.userId!=null ">
+                code_author=#{codeAuthor,
+                javaType=UserInfo,
+                jdbcType=INTEGER,
+                typeHandler=userIdHandler},
+            </if>
+            <if test="codeCategory!=null ">
+                code_category=#{codeCategory},
+            </if>
+            <if test="codeDelete!=null ">
+                code_delete=#{codeDelete},
+            </if>
+            <if test="codeSummary!=null ">
+                code_summary=#{codeSummary},
+            </if>
+            <if test="codeRead!=null ">
+                code_read=#{codeRead},
+            </if>
+            <if test="codeLabel!=null ">
+                code_label=#{codeLabel},
+            </if>
+            <if test="codeHtmlContent!=null ">
+                code_html_content=#{codeHtmlContent},
+            </if>
+            <if test="codeMdContent!=null ">
+                code_md_content=#{codeMdContent},
+            </if>
+        </set>
+        where code_id=#{codeId}
+    </update>
+
+    <select id="selectNextCode" resultMap="ExtendResultMap">
+        select
+        code_id,
+        code_title,
+        code_author,
+        code_date,
+        code_read,
+        code_summary,
+        code_label,
+        code_delete,
+        code_category,
+        code_html_content,
+        code_md_content,
+        u.user_id as u_user_id,
+        u.user_name as u_user_name,
+        u.user_nick_name as u_user_nick_name
+        from code_library c inner join user_info u
+        on c.code_author = u.user_id
+        where c.code_delete=0 and code_id &lt; #{id}
+        order by code_id DESC LIMIT 1
+    </select>
+
+    <select id="selectPrevCode" resultMap="ExtendResultMap">
+        select
+        code_id,
+        code_title,
+        code_author,
+        code_date,
+        code_read,
+        code_summary,
+        code_label,
+        code_delete,
+        code_category,
+        code_html_content,
+        code_md_content,
+        u.user_id as u_user_id,
+        u.user_name as u_user_name,
+        u.user_nick_name as u_user_nick_name
+        from code_library c inner join user_info u
+        on c.code_author = u.user_id
+        where c.code_delete=0 and code_id &gt; #{id}
+        order by code_id asc limit 1
+    </select>
+
+    <select id="selectByPage" resultMap="ExtendResultMap"
+            parameterType="cs.sicnu.fiveg.pojo.CodeLibrary">
+        select
+        code_id,
+        code_title,
+        code_author,
+        code_date,
+        code_read,
+        code_summary,
+        code_label,
+        code_delete,
+        code_category,
+        code_html_content,
+        code_md_content,
+        u.user_id as u_user_id,
+        u.user_name as u_user_name,
+        u.user_nick_name as u_user_nick_name
+        from code_library c inner join user_info u
+        on c.code_author = u.user_id
+        <where>
+            c.code_delete=0
+            <if test="codelib.codeTitle!=null ">
+                and code_title like CONCAT('%',#{codelib.codeTitle},'%')
+            </if>
+            <if test="codelib.codeCategory!=null ">
+                and code_category=#{codelib.codeCategory}
+            </if>
+        </where>
+        order by code_id DESC
+        limit #{size} offset #{pageof}
+    </select>
+
+    <select id="selectByInfo" resultMap="ExtendResultMap"
+            parameterType="cs.sicnu.fiveg.pojo.CodeLibrary">
+        select
+        code_id,
+        code_title,
+        code_author,
+        code_date,
+        code_read,
+        code_summary,
+        code_label,
+        code_delete,
+        code_category,
+        code_html_content,
+        code_md_content,
+        u.user_id as u_user_id,
+        u.user_name as u_user_name,
+        u.user_nick_name as u_user_nick_name
+        from code_library c inner join user_info u
+        on c.code_author = u.user_id
+        <where>
+            c.code_delete=0
+            <if test="codeId!=null ">
+               and code_id=#{codeId}
+            </if>
+
+            <if test="codeTitle!=null ">
+               and code_title like CONCAT('%',#{codeTitle},'%')
+            </if>
+
+            <if test="codeCategory!=null ">
+               and code_category=#{codeCategory}
+            </if>
+        </where>
+    </select>
+
+</mapper>

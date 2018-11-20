@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cs.sicnu.fiveg.mapper.ArticleCategoryMapper">
+
+    <resultMap id="BaseResultMap" type="cs.sicnu.fiveg.pojo.ArticleCategory">
+        <result column="category_id" jdbcType="INTEGER" property="categoryId"/>
+        <result column="category_name" jdbcType="CHAR" property="categoryName"/>
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate"/>
+        <result column="category_delete" jdbcType="INTEGER" property="categoryDelete"/>
+    </resultMap>
+
+    <resultMap id="ExtendResultMap" type="articleCategory" extends="BaseResultMap">
+        <result property="statisticalNum" column="statistical_count"/>
+    </resultMap>
+
+
+    <insert id="insert" parameterType="cs.sicnu.fiveg.pojo.ArticleCategory">
+        insert into article_category (
+        category_id,
+        category_name,
+        create_date,
+        category_delete)
+        values (
+        #{categoryId,jdbcType=INTEGER},
+        #{categoryName,jdbcType=CHAR},
+        #{createDate,jdbcType=TIMESTAMP},
+        #{categoryDelete,jdbcType=INTEGER})
+    </insert>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        category_id,
+        category_name,
+        create_date,
+        category_delete
+        from article_category
+    </select>
+
+    <select id="selectMax" resultType="int">
+        select MAX(category_id)
+        from article_category
+    </select>
+
+    <select id="selectCategoryBlogNum" resultMap="ExtendResultMap">
+        select
+        category_id,
+        category_name,
+        create_date,
+        category_delete,
+        count(*) as statistical_count
+        from article_category a left join blog_details  b
+        on a.category_id = b.blog_category
+        where blog_category is not null
+        group by b.blog_category
+        order by a.category_id
+    </select>
+
+    <select id="selectCategoryCodeNum" resultMap="ExtendResultMap">
+        select
+            category_id,
+            category_name,
+            create_date,
+            category_delete,
+            count(*) as statistical_count
+        from article_category a inner join code_library  c
+                on a.category_id = c.code_category
+        group by c.code_category
+        order by a.category_id
+    </select>
+
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cs.sicnu.fiveg.mapper.ReleaseFeatureMapper">
+    <resultMap id="BaseResultMap" type="cs.sicnu.fiveg.pojo.ReleaseFeature">
+
+        <result column="release_id" jdbcType="INTEGER" property="releaseId"/>
+        <result column="release_author" jdbcType="CHAR" property="releaseAuthor"/>
+        <result column="release_date" jdbcType="TIMESTAMP" property="releaseDate"/>
+        <result column="release_number" jdbcType="CHAR" property="releaseNumber"/>
+        <result column="release_content" jdbcType="LONGVARCHAR" property="releaseContent"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="cs.sicnu.fiveg.pojo.ReleaseFeature">
+
+        insert into release_feature (
+            release_id,
+            release_author,
+            release_date,
+            release_number,
+            release_content)
+        values (
+            #{releaseId,jdbcType=INTEGER},
+            #{releaseAuthor,jdbcType=CHAR},
+            #{releaseDate,jdbcType=TIMESTAMP},
+            #{releaseNumber,jdbcType=CHAR},
+            #{releaseContent,jdbcType=LONGVARCHAR})
+    </insert>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+            release_id,
+            release_author,
+            release_date,
+            release_number,
+            release_content
+        from release_feature
+    </select>
+
+    <update id="update">
+        update release_feature
+        set release_content=#{releaseContent}
+        where release_id=#{releaseId}
+    </update>
+
+    <select id="selectById" resultType="releaseFeature">
+        select
+            release_id,
+            release_author,
+            release_date,
+            release_number,
+            release_content
+        from release_feature
+        where release_id = #{id}
+    </select>
+
+    <select id="selectLatest" resultType="releaseFeature">
+        select
+            release_id,
+            release_author,
+            release_date,
+            release_number,
+            release_content
+        from release_feature
+        order by release_date DESC
+        limit 1
+    </select>
+
+</mapper>

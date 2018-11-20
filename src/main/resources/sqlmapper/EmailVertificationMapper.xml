@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cs.sicnu.fiveg.mapper.EmailVertificationMapper">
+
+    <resultMap id="BaseResultMap" type="cs.sicnu.fiveg.pojo.EmailVertification">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="vaild" jdbcType="INTEGER" property="vaild"/>
+        <result column="email_address" jdbcType="VARCHAR" property="emailAddress"/>
+        <result column="email_date" jdbcType="TIMESTAMP" property="emailDate"/>
+        <result column="vrtificationcode" jdbcType="VARCHAR" property="vrtificationcode"/>
+    </resultMap>
+    <insert id="insert" parameterType="cs.sicnu.fiveg.pojo.EmailVertification">
+        insert into email_vertification (
+            vaild,
+            email_address,
+            vrtificationcode)
+        values (
+            #{vaild,jdbcType=INTEGER},
+            #{emailAddress,jdbcType=VARCHAR}
+            , #{vrtificationcode,jdbcType=VARCHAR})
+    </insert>
+
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+            id,
+            vaild,
+            email_address,
+            email_date,
+            vrtificationcode
+        from email_vertification
+    </select>
+
+    <select id="selectVild" resultType="emailVertification">
+        select
+            id,
+            vaild,
+            email_address,
+            email_date,
+            vrtificationcode
+        from email_vertification
+        where vaild=1 and email_address=#{email}
+    </select>
+
+    <update id="setVailed" >
+        update email_vertification
+        set vaild=0
+        where email_address=#{email}
+    </update>
+
+</mapper>

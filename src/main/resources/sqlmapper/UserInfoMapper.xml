@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cs.sicnu.fiveg.mapper.UserInfoMapper">
+    <resultMap id="BaseResultMap" type="userinfo">
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="user_name" jdbcType="CHAR" property="userName"/>
+        <result column="user_password" jdbcType="CHAR" property="userPassword"/>
+        <result column="user_email" jdbcType="CHAR" property="userEmail"/>
+        <result column="user_phone" jdbcType="CHAR" property="userPhone"/>
+        <result column="user_age" jdbcType="INTEGER" property="userAge"/>
+        <result column="user_sex" jdbcType="INTEGER" property="userSex"/>
+        <result column="user_address" jdbcType="CHAR" property="userAddress"/>
+        <result column="user_head_url" jdbcType="CHAR" property="userHeadUrl"/>
+        <result column="user_nick_name" jdbcType="CHAR" property="userNickName"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="userinfo">
+        insert into user_info (
+            user_id,
+            user_name,
+            user_password,
+            user_email,
+            user_phone,
+            user_age,
+            user_sex,
+            user_address,
+            user_head_url,
+            user_nick_name)
+        values (
+            #{userId,jdbcType=INTEGER},
+            #{userName,jdbcType=CHAR},
+            #{userPassword,jdbcType=CHAR},
+            #{userEmail,jdbcType=CHAR},
+            #{userPhone,jdbcType=CHAR},
+            #{userAge,jdbcType=INTEGER},
+            #{userSex,jdbcType=INTEGER},
+            #{userAddress,jdbcType=CHAR},
+            #{userHeadUrl,jdbcType=CHAR},
+            #{userNickName,jdbcType=CHAR})
+    </insert>
+
+    <update id="updateUserEmailByName" parameterType="userInfo">
+        update user_info
+        set
+            user_email = #{userEmail,jdbcType=CHAR}
+        where
+            user_name = #{userName}
+    </update>
+
+
+    <update id="updatePwdByName" parameterType="userInfo">
+        update user_info
+        set
+            user_password = #{userPassword,jdbcType=CHAR}
+        where
+            user_name = #{userName}
+    </update>
+
+    <update id="updateUserByID" parameterType="userinfo">
+        update user_info
+        <set>
+            <if test="userPhone!=null ">
+                user_phone=#{userPhone},
+            </if>
+            <if test="userName!=null ">
+                user_name=#{userName},
+            </if>
+            <if test="userNickName!=null ">
+                user_nick_name=#{userNickName},
+            </if>
+            <if test="userAge!=null ">
+                user_age=#{userAge},
+            </if>
+            <if test="userAddress!=null ">
+                user_address=#{userAddress},
+            </if>
+        </set>
+        where user_id=#{userId}
+    </update>
+
+    <update id="updateUserPwdByNameAndEmail" parameterType="userinfo">
+        update user_info
+        set
+            user_password = #{userPassword,jdbcType=CHAR}
+        where
+            user_name = #{userName} and user_email = #{userEmail}
+    </update>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+            user_id,
+            user_name,
+            user_password,
+            user_email,
+            user_phone,
+            user_age,
+            user_sex,
+            user_address,
+            user_head_url,
+            user_nick_name
+        from user_info
+    </select>
+
+    <select id="selectPwdByName" resultType="string">
+        select user_password
+        from user_info
+        where user_name = #{userName}
+    </select>
+
+    <select id="selectByName" resultMap="BaseResultMap">
+        select
+            user_id,
+            user_name,
+            user_password,
+            user_email,
+            user_phone,
+            user_age,
+            user_sex,
+            user_address,
+            user_head_url,
+            user_nick_name
+        from user_info
+        where user_name=#{username}
+    </select>
+
+    <select id="selectByInfoCount" resultType="int" parameterType="userinfo">
+        select COUNT(user_id)
+        from user_info
+    </select>
+
+    <select id="selectByInfoPaged" resultType="userinfo">
+        select
+            user_id,
+            user_name,
+            user_password,
+            user_email,
+            user_phone,
+            user_age,
+            user_sex,
+            user_address,
+            user_head_url,
+            user_nick_name
+        from user_info
+        limit #{startp},#{size}
+    </select>
+
+</mapper>
